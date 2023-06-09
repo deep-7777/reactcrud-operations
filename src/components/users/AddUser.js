@@ -1,122 +1,196 @@
 import React, { useState } from "react";
-import axios from 'axios'
-import { useHistory } from "react-router-dom";
 
 const AddUser = () => {
-  let history = useHistory();
   const [user, setUser] = useState({
     name: "",
-    username: "",
-    email: "",  
-    phone: "",
+    email: "",
+    password: "",
+    contactNo: "",
     address: "",
-    hobbies:""
+    hobbies: "",
+    profile: "static_value_here",
+    gender: ""
   });
 
-  const { name, password, email, phone, address,hobbies } = user;
-  const onInputChange = e => {
+  const { name, password, email, contactNo, address, hobbies, profile, gender } = user;
+
+  const onInputChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const onSubmit = async e => {
-    e.preventDefault();
-    await axios.post("http://", user);
-    history.push("/");
+  const addUser = async (user) => {
+    try {
+      // Your API request to add user
+    } catch (error) {
+      console.error("Error adding user:", error);
+    }
   };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    await addUser(user);
+  };
+
+  const onFileInputChange = (e) => {
+    const file = e.target.files[0];
+    setUser((prevUser) => ({ ...prevUser, profile: file }));
+  };
+
+  const ongenInputChange = (e) => {
+    if (e.target.type === "radio") {
+      setUser({ ...user, gender: e.target.value });
+    } else {
+      setUser({ ...user, [e.target.name]: e.target.value });
+    }
+  };
+
   return (
     <div className="container">
-      <div className="w-75 mx-auto shadow p-5">
+      <div className="w-50 mx-auto shadow p-5" >
         <h2 className="mb-4">Add A User</h2>
-        <form onSubmit={e => onSubmit(e)}>
-          <div className="form-group">
+        <form onSubmit={onSubmit}>
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputname" className="form-label">
+              <h4>Name</h4>
+            </label>
             <input
               type="text"
-              className="form-control form-control-lg"
+              className="form-control"
               placeholder="Enter Your Name"
               name="name"
               value={name}
-              onChange={e => onInputChange(e)}
+              onChange={onInputChange}
             />
           </div>
-        
-          <div className="form-group">
+
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputEmail1" className="form-label">
+              <h4>Email Address</h4>
+            </label>
             <input
               type="email"
-              className="form-control form-control-lg"
+              className="form-control"
               placeholder="Enter Your E-mail Address"
               name="email"
               value={email}
-              onChange={e => onInputChange(e)}
+              onChange={onInputChange}
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputPassword" className="form-label">
+              <h4>Password</h4>
+            </label>
             <input
               type="password"
-              className="form-control form-control-lg"
+              className="form-control"
               placeholder="Enter Your Password"
-              name="Password"
+              name="password"
               value={password}
-              onChange={e => onInputChange(e)}
+              onChange={onInputChange}
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputContactNo" className="form-label">
+              <h4>ContactNo</h4>
+            </label>
             <input
               type="text"
-              className="form-control form-control-lg"
+              className="form-control"
               placeholder="Enter Your Phone Number"
-              name="phone"
-              value={phone}
-              onChange={e => onInputChange(e)}
+              name="contactNo"
+              value={contactNo}
+              onChange={onInputChange}
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputAddress" className="form-label">
+              <h4>Address</h4>
+            </label>
             <input
               type="text"
-              className="form-control form-control-lg"
+              className="form-control"
               placeholder="Enter Your Address"
-              name="Address"
+              name="address"
               value={address}
-              onChange={e => onInputChange(e)}
+              onChange={onInputChange}
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputHobbies" className="form-label">
+              <h4>Hobbies</h4>
+            </label>
             <input
               type="text"
-              className="form-control form-control-lg"
+              className="form-control"
               placeholder="Enter Your Hobbies"
-              name="Hobbies"
+              name="hobbies"
               value={hobbies}
-              onChange={e => onInputChange(e)}
+              onChange={onInputChange}
             />
           </div>
-          <div className="form-group">
-          <label className="form-label" for="customFile"> <h4>Image Uploder</h4></label>
-          <input type="file" className="form-control" id="customFile" />
+
+          <div className="form-group mb-3">
+            <label className="form-label">
+              <h4>Profile</h4>
+            </label>
+            <input
+              type="file"
+              name="profile"
+              className="form-control"
+              id="customFile"
+              onChange={onFileInputChange}
+            />
           </div>
-                  
-          <div className="form-check">
+
+          <div className="form-check mb-3">
             <h3>Gender</h3>
-          <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
-          <label className="form-check-label" for="flexRadioDefault1">
-            Male
-          </label>
-        </div>
-        <div className="form-check">
-          <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
-          <label className="form-check-label" for="flexRadioDefault2">
-          Female 
-          </label>
-        </div>
-        <div className="form-check">
-          <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
-          <label className="form-check-label" for="flexRadioDefault2">
-            Other
-          </label>
-        </div>
+            <input
+              className="form-check-input"
+              type="radio"
+              value="Male"
+              onChange={ongenInputChange}
+              name="gender"
+              id="flexRadioDefault1"
+            />
+            <label className="form-check-label" htmlFor="flexRadioDefault1">
+              Male
+            </label>
+          </div>
+
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="radio"
+              value="Female"
+              onChange={ongenInputChange}
+              name="gender"
+              id="flexRadioDefault2"
+              checked={user.gender === "Female"}
+            />
+            <label className="form-check-label" htmlFor="flexRadioDefault2">
+              Female
+            </label>
+          </div>
+
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="radio"
+              value="Other"
+              onChange={ongenInputChange}
+              name="gender"
+              id="flexRadioDefault3"
+              checked={user.gender === "Other"}
+            />
+            <label className="form-check-label" htmlFor="flexRadioDefault3">
+              Other
+            </label>
+          </div>
+
           <button className="btn btn-primary btn-block">Add User</button>
         </form>
       </div>

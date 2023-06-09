@@ -16,17 +16,18 @@ import EditUser from "./components/users/EditUser";
 import User from "./components/users/User";
 
 function App() {
+  
   return (
     <Router>
       <div className="App">
         <Navbar />
         <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/about" component={About} />
+          <Route exact path="/"  component={Home} />
+          <Route path="/about"  component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/users/add" component={AddUser} />
           <Route path="/users/edit/:id" component={EditUser} />
-          <Route path="/users/:id" component={User} />
+          <Route path="/users/:id" component={User} />  
           <Route component={NotFound} />
         </Switch>
       </div>

@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.4.0",
     "bootstrap": "^4.6.2",
+    "http-proxy-middleware": "^2.0.6",
     "ngx-bootstrap": "^10.2.0",
     "react": "^18.2.0",
     "react-bootstrap": "^0.32.4",
