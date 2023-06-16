@@ -1,18 +1,23 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useHistory } from "react-router-dom";
+
 
 const AddUser = () => {
+  const history = useHistory();
   const [user, setUser] = useState({
-    name: "",
-    email: "",
-    password: "",
-    contactNo: "",
-    address: "",
-    hobbies: "",
-    profile: "static_value_here",
-    gender: ""
+    Name: "",
+    Email: "",
+    Password: "",
+    ContactNo: "",
+    Address: "",
+    Hobbies: "",
+    Profile: "",
+    Gender: ""
   });
 
-  const { name, password, email, contactNo, address, hobbies, profile, gender } = user;
+  const { Name, Password, Email, ContactNo, Address, Hobbies, Profile, Gender } =
+    user || {}; 
 
   const onInputChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -20,9 +25,26 @@ const AddUser = () => {
 
   const addUser = async (user) => {
     try {
-      // Your API request to add user
+      const token_data = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token_data}`,
+      };
+
+      const response = await axios.post("http://192.168.1.44:8012/Student/AddStudent",user, {
+        headers: headers
+      });
+
+      if (response.status === 200) {
+        const data = response.data;
+        setUser(data.listEmployees);
+        console.log(data);
+        history.replace('/');
+      } else {
+        console.error("Error fetching user:", response.status);
+      }
     } catch (error) {
-      console.error("Error adding user:", error);
+      console.error("Error fetching user:", error);
     }
   };
 
@@ -33,17 +55,16 @@ const AddUser = () => {
 
   const onFileInputChange = (e) => {
     const file = e.target.files[0];
-    setUser((prevUser) => ({ ...prevUser, profile: file }));
+    setUser((prevUser) => ({ ...prevUser, Profile: file }));
   };
 
-  const ongenInputChange = (e) => {
+  const onGenInputChange = (e) => {
     if (e.target.type === "radio") {
-      setUser({ ...user, gender: e.target.value });
+      setUser({ ...user, Gender: e.target.value });
     } else {
       setUser({ ...user, [e.target.name]: e.target.value });
     }
   };
-
   return (
     <div className="container">
       <div className="w-50 mx-auto shadow p-5" >
@@ -51,109 +72,110 @@ const AddUser = () => {
         <form onSubmit={onSubmit}>
           <div className="form-group mb-3">
             <label htmlFor="exampleInputname" className="form-label">
-              <h4>Name</h4>
+              <h5>Name</h5>
             </label>
             <input
               type="text"
               className="form-control"
               placeholder="Enter Your Name"
-              name="name"
-              value={name}
+              name="Name"
+              value={Name}
               onChange={onInputChange}
             />
           </div>
 
           <div className="form-group mb-3">
             <label htmlFor="exampleInputEmail1" className="form-label">
-              <h4>Email Address</h4>
+              <h5>Email Address</h5>
             </label>
             <input
-              type="email"
+              type="Email"
               className="form-control"
               placeholder="Enter Your E-mail Address"
-              name="email"
-              value={email}
+              name="Email"
+              value={Email}
               onChange={onInputChange}
             />
           </div>
 
           <div className="form-group mb-3">
             <label htmlFor="exampleInputPassword" className="form-label">
-              <h4>Password</h4>
+              <h5>Password</h5>
             </label>
             <input
-              type="password"
+              type="Password"
               className="form-control"
               placeholder="Enter Your Password"
-              name="password"
-              value={password}
+              name="Password"
+              value={Password}
               onChange={onInputChange}
             />
           </div>
 
           <div className="form-group mb-3">
             <label htmlFor="exampleInputContactNo" className="form-label">
-              <h4>ContactNo</h4>
+              <h5>ContactNo</h5>
             </label>
             <input
               type="text"
               className="form-control"
               placeholder="Enter Your Phone Number"
-              name="contactNo"
-              value={contactNo}
+              name="ContactNo"
+              value={ContactNo}
               onChange={onInputChange}
             />
           </div>
 
           <div className="form-group mb-3">
             <label htmlFor="exampleInputAddress" className="form-label">
-              <h4>Address</h4>
+              <h5>Address</h5>
             </label>
             <input
               type="text"
               className="form-control"
               placeholder="Enter Your Address"
-              name="address"
-              value={address}
+              name="Address"
+              value={Address}
               onChange={onInputChange}
             />
           </div>
 
           <div className="form-group mb-3">
             <label htmlFor="exampleInputHobbies" className="form-label">
-              <h4>Hobbies</h4>
+              <h5>Hobbies</h5>
             </label>
             <input
               type="text"
               className="form-control"
               placeholder="Enter Your Hobbies"
-              name="hobbies"
-              value={hobbies}
+              name="Hobbies"  
+              value={Hobbies}
               onChange={onInputChange}
             />
           </div>
 
           <div className="form-group mb-3">
             <label className="form-label">
-              <h4>Profile</h4>
+              <h5>Profile</h5>
             </label>
             <input
               type="file"
-              name="profile"
+              name="Profile"
               className="form-control"
               id="customFile"
               onChange={onFileInputChange}
             />
           </div>
 
+         
           <div className="form-check mb-3">
             <h3>Gender</h3>
             <input
               className="form-check-input"
               type="radio"
               value="Male"
-              onChange={ongenInputChange}
-              name="gender"
+              onChange={onGenInputChange}
+              name="Gender"
               id="flexRadioDefault1"
             />
             <label className="form-check-label" htmlFor="flexRadioDefault1">
@@ -166,10 +188,10 @@ const AddUser = () => {
               className="form-check-input"
               type="radio"
               value="Female"
-              onChange={ongenInputChange}
-              name="gender"
+              onChange={onGenInputChange}
+              name="Gender"
               id="flexRadioDefault2"
-              checked={user.gender === "Female"}
+              checked={user && user.Gender === "Female"} // Add null check here
             />
             <label className="form-check-label" htmlFor="flexRadioDefault2">
               Female
@@ -181,10 +203,10 @@ const AddUser = () => {
               className="form-check-input"
               type="radio"
               value="Other"
-              onChange={ongenInputChange}
-              name="gender"
+              onChange={onGenInputChange}
+              name="Gender"
               id="flexRadioDefault3"
-              checked={user.gender === "Other"}
+              checked={user && user.Gender === "Other"} // Add null check here
             />
             <label className="form-check-label" htmlFor="flexRadioDefault3">
               Other

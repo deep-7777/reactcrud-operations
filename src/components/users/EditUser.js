@@ -1,67 +1,102 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 const EditUser = () => {
+  const history = useHistory();
+
   const [user, setUser] = useState({
-    name: "",
-    password: "",
-    email: "",
-    contactNo: "",
-    address: "",
-    hobbies: "",
-    profile: "",
-    gender: ""
+    Name: "",
+    Password: "",
+    Email: "",
+    ContactNo: "",
+    Address: "",
+    Hobbies: "",
+    Profile: "",
+    Gender: ""
 
   });
   console.log(user)
-  const { id } = useParams();
+  const { Id } = useParams();
 
   useEffect(() => {
-    fetchUser(id);
-  }, [id]);
+    fetchUser();
+  }, []);
 
-  const fetchUser = async (id) => {
-    try {
-      const response = await fetch(`https://192.168.1.44/Student/GetStudentById/${id}`);
-      // const response = await fetch(`https://192.168.1.44/Student/GetStudentById/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.employee);
-        console.log(data);
-      } else {
-        console.error("Error fetching user:", response.status);
+  const fetchUser = async () => {
+      try {
+      const token_data = localStorage.getItem("token");
+      const ID_data = localStorage.getItem("Id");
+      console.log("********",ID_data)
+      debugger;
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token_data}`,
+      };
+        const response = await fetch(`http://192.168.1.44:45455/Student/GetStudentById/${ID_data}`,{
+        headers: headers
+      });
+        // const response = await fetch(`https://192.168.1.44/Student/GetStudentById/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.Employee);
+          console.log(data);
+        } else {
+          console.error("Error fetching user:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
       }
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  };
+    };
 
-  const name = user?.name || "";
-  const password = user?.password || "";
-  const email = user?.email || "";
-  const contactNo = user?.contactNo || "";
-  const address = user?.address || "";
-  const hobbies = user?.hobbies || "";
-  const profile = user?.profile || "";
-  const gender = user?.gender || "";
+  const Name = user?.Name || "";
+  const Password = user?.Password || "";
+  const Email = user?.Email || "";
+  const ContactNo = user?.ContactNo || "";
+  const Address = user?.Address || "";
+  const Hobbies = user?.Hobbies || "";
+  const Profile = user?.Profile || "";
+  const Gender = user?.Gender || "";
 
   const onInputChange = e => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const editUser = async (user) => {
-    debugger;
-    try {
-      const response = await fetch(`https://192.168.1.44/Student/UpdateStudent/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(user)
-      });
+  const editUser = async () => {
+  // const history = useHistory();
 
+    try {
+      const token_data = localStorage.getItem("token");
+      const Id = localStorage.getItem("Id");
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token_data}`,
+      };
+      
+      const updatedUser = {
+        Name: user.Name,
+        Password: user.Password,
+        Email: user.Email,
+        ContactNo: user.ContactNo,
+        Address: user.Address,
+        Hobbies: user.Hobbies,
+        Profile: user.Profile,
+        Gender: user.Gender,
+      };
+  
+      const response = await fetch(
+        `http://192.168.1.44:45455/Student/UpdateStudent/${Id}`,
+        {
+          method: "PUT",
+          headers: headers,
+          body: JSON.stringify(updatedUser), // Pass the updated user data in the request body
+        }
+      );
+  
       if (response.ok) {
         console.log("User updated successfully!");
+        history.replace('/');
+
       } else {
         console.error("Error updating user:", response.status);
       }
@@ -69,6 +104,7 @@ const EditUser = () => {
       console.error("Error updating user:", error);
     }
   };
+  
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -77,12 +113,12 @@ const EditUser = () => {
 
   const onFileInputChange = e => {
     const file = e.target.files[0];
-    setUser(prevUser => ({ ...prevUser, profile: file }));
+    setUser(prevUser => ({ ...prevUser, Profile: file }));
   };
 
   const onGenInputChange = e => {
     if (e.target.type === 'radio') {
-      setUser({ ...user, gender: e.target.value });
+      setUser({   ...user, Gender: e.target.value });
     } else {
       setUser({ ...user, [e.target.name]: e.target.value });
     }
@@ -98,95 +134,95 @@ const EditUser = () => {
         <form onSubmit={onSubmit}>
           <div className="form-group">
             <label htmlFor="exampleInputname" className="form-label">
-              <h4>Name</h4>
+              <h5>Name</h5>
             </label>
             <input
               type="text"
               className="form-control form-control-lg"
               placeholder="Enter Your Name"
-              name="name"
-              value={name}
+              name="Name"
+              value={Name}
               onChange={e => onInputChange(e)}
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="exampleInputEmail1" className="form-label">
-              <h4>Email Address</h4>
+              <h5>Email Address</h5>
             </label>
             <input
-              type="email"
+              type="Email"
               className="form-control form-control-lg"
               placeholder="Enter Your E-mail Address"
-              name="email"
-              value={email}
+              name="Email"
+              value={Email}
               onChange={e => onInputChange(e)}
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="exampleInputPassword" className="form-label">
-              <h4>Password</h4>
+              <h5>Password</h5>
             </label>
             <input
-              type="password"
+              type="Password"
               className="form-control form-control-lg"
               placeholder="Enter Your Password"
-              name="password"
-              value={password}
+              name="Password"
+              value={Password}
               onChange={e => onInputChange(e)}
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="exampleInputContactNo" className="form-label">
-              <h4>ContactNo</h4>
+              <h5>ContactNo</h5>
             </label>
             <input
               type="text"
               className="form-control form-control-lg"
               placeholder="Enter Your Phone Number"
               name="contactNo"
-              value={contactNo}
+              value={ContactNo}
               onChange={e => onInputChange(e)}
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="exampleInputAddress" className="form-label">
-              <h4>Address</h4>
+              <h5>Address</h5>
             </label>
             <input
               type="text"
               className="form-control form-control-lg"
               placeholder="Enter Your Address"
-              name="address"
-              value={address}
+              name="Address"
+              value={Address}
               onChange={e => onInputChange(e)}
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="exampleInputHobbies" className="form-label">
-              <h4>Hobbies</h4>
+              <h5>Hobbies</h5>
             </label>
             <input
               type="text"
               className="form-control form-control-lg"
               placeholder="Enter Your Hobbies"
-              name="hobbies"
-              value={hobbies}
+              name="Hobbies"
+              value={Hobbies}
               onChange={e => onInputChange(e)}
             />
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="customFile">
-              <h4>Profile</h4>
+              <h5>Profile</h5>
             </label>
             <input
               type="file"
-              name="profile"
+              name="Profile"
               className="form-control"
               id="customFile"
               onChange={e => onFileInputChange(e)}
@@ -200,9 +236,9 @@ const EditUser = () => {
               type="radio"
               value="Male"
               onChange={e => onGenInputChange(e)}
-              name="gender"
+              name="Gender"
               id="flexRadioDefault1"
-              checked={user.gender === 'Male'}
+              checked={user.Gender === 'Male'}
             />
             <label className="form-check-label" htmlFor="flexRadioDefault1">
               Male
@@ -215,9 +251,9 @@ const EditUser = () => {
               type="radio"
               value="Female"
               onChange={e => onGenInputChange(e)}
-              name="gender"
+              name="Gender"
               id="flexRadioDefault2"
-              checked={user.gender === 'Female'}
+              checked={user.Gender === 'Female'}
             />
             <label className="form-check-label" htmlFor="flexRadioDefault2">
               Female
@@ -230,9 +266,9 @@ const EditUser = () => {
               type="radio"
               value="Other"
               onChange={e => onGenInputChange(e)}
-              name="gender"
+              name="Gender"
               id="flexRadioDefault3"
-              checked={user.gender === 'Other'}
+              checked={user.Gender === 'Other'}
             />
             <label className="form-check-label" htmlFor="flexRadioDefault3">
               Other

@@ -2,26 +2,36 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 const User = () => {
-  const [user, setUser] = useState({
-    name: "",
-    password: "",
-    email: "",
-    phone: "",
-    address: ""
-  });
-  const { id } = useParams();
+  const [user, setUser] = useState(null);
+  const { Id } = useParams();
 
   useEffect(() => {
     fetchUser();
   }, []);
 
   const fetchUser = async () => {
+    // debugger
     try {
-      const response = await fetch(`https://192.168.1.44/Student/GetStudentById/${id}`);
+      const token_data = localStorage.getItem("token");
+      const ID_data = localStorage.getItem("Id");
+      console.log("********",ID_data)
+      // debugger
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token_data}`
+      };
+      // debugger
+      const response = await fetch(
+        `http://192.168.1.44:45455/Student/GetStudentById/${ID_data}`,
+        {
+          headers: headers
+        }
+      );
+// debugger
       if (response.ok) {
         const data = await response.json();
-        setUser(data.employee); // Update to set user state with employee data
-        console.log(data.employee);
+        setUser(data.Employee); // Update to match the structure of the response
+        // console.log(data.Employee);
       } else {
         console.log("Error fetching user:", response.status);
       }
@@ -35,15 +45,19 @@ const User = () => {
       <Link className="btn btn-primary" to="/">
         Back to Home
       </Link>
-      <h1 className="display-4">User ID: {id}</h1>
+      <h1 className="display-4">User ID: {Id}</h1>
       <hr />
-      <ul className="list-group w-50">
-        <li className="list-group-item">Name: {user.name}</li>
-        <li className="list-group-item">Password: {user.password}</li>
-        <li className="list-group-item">Email: {user.email}</li>
-        <li className="list-group-item">Phone: {user.contactNo}</li>
-        <li className="list-group-item">Address: {user.address}</li>
-      </ul>
+      {user ? (
+        <ul className="list-group w-50">
+          <li className="list-group-item">Name: {user.Name}</li>
+          <li className="list-group-item">Hobbies: {user.Hobbies}</li>
+          <li className="list-group-item">Email: {user.Email}</li>
+          <li className="list-group-item">Phone: {user.ContactNo}</li>
+          <li className="list-group-item">Address: {user.Address}</li>
+        </ul>
+      ) : (
+        <p>Loading user data...</p>
+      )}
     </div>
   );
 };

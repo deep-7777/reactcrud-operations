@@ -3,7 +3,8 @@ import "./App.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.css";
 import Home from "./components/pages/Home";
 import About from "./components/pages/About";
-import Contact from "./components/pages/Contact";
+import Login from "./components/pages/Login";
+import Register from "./components/pages/Register";
 import Navbar from "./components/layout/Navbar";
 import {
   BrowserRouter as Router,
@@ -24,7 +25,8 @@ function App() {
         <Switch>
           <Route exact path="/"  component={Home} />
           <Route path="/about"  component={About} />
-          <Route path="/contact" component={Contact} />
+          <Route path="/Login" component={Login} />
+          <Route path="/Register" component={Register} />
           <Route path="/users/add" component={AddUser} />
           <Route path="/users/edit/:id" component={EditUser} />
           <Route path="/users/:id" component={User} />  
