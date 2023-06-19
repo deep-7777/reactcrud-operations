@@ -7,38 +7,54 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+  const [searchText, setSearchText] = useState("");
+
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage,searchText]);
 
-  const fetchUsers = async () => {
-    try {
-      const token_data = localStorage.getItem("token");
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token_data}`,
-      };
-      const response = await fetch(
+ const fetchUsers = async () => {
+  try {
+    const token_data = localStorage.getItem("token");
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token_data}`,
+    };
+    let response;
+    if (searchText === "") {
+      debugger
+      response = await fetch(
         `http://192.168.1.44:45455/Student/GetPaginatedStudentData?pageNumber=${currentPage}&pageSize=${usersPerPage}`,
         {
           headers: headers,
         }
       );
-
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.listEmployees);
-        setTotalCount(data.TotalCount);
-        console.log(data);
-      } else {
-        console.error("Error fetching users:", response.status);
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error);
+    } else {
+      debugger
+      const int_id = parseInt(searchText) 
+      response = await fetch(`http://192.168.1.44:45455/Student/GetStudentById/${int_id}` ,{
+          headers: headers,
+        }
+      );
     }
-  };
 
+    if (response.ok) {
+      const data = await response.json();
+      if(searchText != ''){
+        setUsers([data.Employee])
+      }else{
+      setUsers(data.listEmployees);
+    }
+      setTotalCount(data.TotalCount);
+      console.log(data);
+    } else {
+      console.error("Error fetching users:", response.status);
+    }
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
   const deleteUser = async (Id) => {
     try {
       const token_data = localStorage.getItem("token");
@@ -72,11 +88,29 @@ const Home = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+  const handleSearch = () => {
+    setCurrentPage(1); // Reset to the first page when performing a search
+  };
 
+  const handleSearchInputChange = (e) => {
+    setSearchText(e.target.value);
+  };
+  
   return (
     <div className="container">
       <div className="py-4">
         <h1>Home Page</h1>
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchText}
+            onChange={handleSearchInputChange}
+          />
+          <button className="btn btn-primary ml-2" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
         {users.length > 0 ? (
           <>
             <table className="table border shadow">
@@ -137,7 +171,7 @@ const Home = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table> 
             {/* Pagination */}
             <div className="d-flex justify-content-center">
               <Pagination
