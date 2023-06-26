@@ -15,7 +15,7 @@ const AddUser = () => {
     Profile: "",
     Gender: ""
   });
-
+debugger
   const { Name, Password, Email, ContactNo, Address, Hobbies, Profile, Gender } =
     user || {}; 
 
@@ -27,19 +27,33 @@ const AddUser = () => {
     try {
       const token_data = localStorage.getItem("token");
       const headers = {
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data", // Update content type
         Authorization: `Bearer ${token_data}`,
       };
-
-      const response = await axios.post("http://192.168.1.44:8012/Student/AddStudent",user, {
-        headers: headers
-      });
-
+  
+      const formData = new FormData();
+      formData.append("Name", user.Name);
+      formData.append("Email", user.Email);
+      formData.append("Password", user.Password);
+      formData.append("ContactNo", user.ContactNo);
+      formData.append("Address", user.Address);
+      formData.append("Hobbies", user.Hobbies);
+      formData.append("Profile", user.Profile); // Assuming `Profile` is a File object
+      formData.append("Gender", user.Gender);
+  
+      const response = await axios.post(
+        "http://192.168.1.44:45455/Student/AddStudent",
+        formData,
+        {
+          headers: headers,
+        }
+      );
+  
       if (response.status === 200) {
         const data = response.data;
         setUser(data.listEmployees);
         console.log(data);
-        history.replace('/');
+        history.replace("/");
       } else {
         console.error("Error fetching user:", response.status);
       }
@@ -47,7 +61,7 @@ const AddUser = () => {
       console.error("Error fetching user:", error);
     }
   };
-
+  
   const onSubmit = async (e) => {
     e.preventDefault();
     await addUser(user);
@@ -162,7 +176,8 @@ const AddUser = () => {
               type="file"
               name="Profile"
               className="form-control"
-              id="customFile"
+              // id="customFile"
+              value={Profile.FileName}
               onChange={onFileInputChange}
             />
           </div>

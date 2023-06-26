@@ -179,7 +179,7 @@ const EditUser = () => {
               <h5>ContactNo</h5>
             </label>
             <input
-              type="text"
+              type="Number"
               className="form-control form-control-lg"
               placeholder="Enter Your Phone Number"
               name="contactNo"

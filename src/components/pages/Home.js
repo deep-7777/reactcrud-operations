@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Pagination from "react-js-pagination";
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 const Home = () => {
   const [users, setUsers] = useState([]);
@@ -8,6 +11,8 @@ const Home = () => {
   const [usersPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [searchText, setSearchText] = useState("");
+  const [sortKey, setSortKey] = useState(""); // State to track the current sort key
+  const [sortOrder, setSortOrder] = useState("asc");
 
 
   useEffect(() => {
@@ -23,7 +28,6 @@ const Home = () => {
     };
     let response;
     if (searchText === "") {
-      debugger
       response = await fetch(
         `http://192.168.1.44:45455/Student/GetPaginatedStudentData?pageNumber=${currentPage}&pageSize=${usersPerPage}`,
         {
@@ -31,7 +35,6 @@ const Home = () => {
         }
       );
     } else {
-      debugger
       const int_id = parseInt(searchText) 
       response = await fetch(`http://192.168.1.44:45455/Student/GetStudentById/${int_id}` ,{
           headers: headers,
@@ -95,29 +98,164 @@ const Home = () => {
   const handleSearchInputChange = (e) => {
     setSearchText(e.target.value);
   };
+
+  const handleExportClick = () => {
+    const token_data = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token_data}`,
+    };
   
+    fetch('http://192.168.1.44:45455/Student/ExportExcelAllData', {
+      headers: headers,
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.blob();
+        } else {
+          console.error('API call failed');
+          // Handle errors or display an error message
+        }
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'exported_data.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+  
+        Swal.fire({
+          icon: 'success',
+          title: 'Successfully!',
+          text: 'Export all page data download completed!',
+        });
+      })
+      .catch(error => {
+        console.error('API call failed');
+        // Handle errors or display an error message
+      });
+  };
+  
+  const handleExportClickcurrent = () => {
+    const token_data = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token_data}`,
+    };
+  
+    fetch(`http://192.168.1.44:45455/Student/ExportExcelCurrentPage?pageNumber=${currentPage}&pageSize=${usersPerPage}`, {
+      headers: headers,
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.blob();
+        } else {
+          console.error('API call failed');
+          // Handle errors or display an error message
+        }
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'exported_data.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+  
+        Swal.fire({
+          icon: 'success',
+          title: 'Successfully!',
+          text: 'Current Data page download completed!',
+        });
+      })
+      .catch(error => {
+        console.error('API call failed');
+        // Handle errors or display an error message
+      });
+  };
+  
+
+  const onFileInputChange = (event) => {
+    const file = event.target.files[0];
+    const token_data = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token_data}`,
+    };
+  
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    axios
+      .post('http://192.168.1.44:45455/Student/ImportFile', formData, { headers: headers })
+      .then(response => {
+        console.log('API call successful');
+        // Handle the response if needed
+        Swal.fire({
+          icon: 'success',
+          title: 'Successfully!',
+          text: 'File uploaded successfully!',
+        });
+      })
+      .catch(error => {
+        console.error('API call failed');
+        // Handle errors or display an error message
+      });
+  };
+  const handleSortClick = (key) => {
+    if (sortKey === key) {
+      // If the same key is clicked again, toggle the sort order
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // If a different key is clicked, set the new sort key and default sort order to ascending
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+  const sortedUsers = users.sort((a, b) => {
+    // Sort the users array based on the sort key and sort order
+    if (sortKey === "id") {
+      return sortOrder === "asc" ? a.Id - b.Id : b.Id - a.Id;
+    } else if (sortKey === "name") {
+      return sortOrder === "asc" ? a.Name.localeCompare(b.Name) : b.Name.localeCompare(a.Name);
+    }
+    // If no sort key is set, return the original order of users
+    return 0;
+  });
   return (
     <div className="container">
       <div className="py-4">
         <h1>Home Page</h1>
         <div className="mb-3">
+          <input type="text" placeholder="Search by name..." value={searchText} onChange={handleSearchInputChange}/>
+          <button className="btn btn-primary ml-2" onClick={handleSearch}> Search </button>
+          <div className="form-group mb-3" style={{ width: '25%' }}>
+          <label className="form-label"></label>
           <input
-            type="text"
-            placeholder="Search by name..."
-            value={searchText}
-            onChange={handleSearchInputChange}
+            type="file"
+            name="Profile"
+            className="form-control"
+            id="customFile"
+            onChange={onFileInputChange}
           />
-          <button className="btn btn-primary ml-2" onClick={handleSearch}>
-            Search
-          </button>
+        </div>
         </div>
         {users.length > 0 ? (
           <>
             <table className="table border shadow">
               <thead className="thead-dark">
                 <tr style={{ textAlign: "center" }}>
-                  <th scope="col">Id</th>
-                  <th scope="col">Name</th>
+                <th scope="col">
+                <button className="btn btn-link" onClick={() => handleSortClick("id")}>
+                  Id
+                </button>
+              </th>
+              <th scope="col">
+                <button className="btn btn-link" onClick={() => handleSortClick("name")}>
+                  Name
+                </button>
+              </th>
                   <th scope="col">Email</th>
                   <th scope="col">Address</th>
                   <th scope="col">Hobbies</th>
@@ -136,10 +274,10 @@ const Home = () => {
                     <td>{user.Hobbies}</td>
                     <td>{user.ContactNo}</td>
                     <td>
-                      <img
-                        src={user.Profile}
+                    <img
+                        src={`http://192.168.1.44:45455/Student/ImagePath/${user.Profile}`}
                         alt="Profile"
-                        style={{ width: "50px", height: "50px" }}
+                        style={{ width: "60px", height: "60px", borderRadius:"40px" }}
                       />
                     </td>
                     <td>
@@ -184,7 +322,17 @@ const Home = () => {
                 linkClass="page-link"
               />
             </div>
-          </>
+            <div className="text-right">
+            <button type="button" className="btn btn-primary mr-1" onClick={handleExportClickcurrent}>
+              Export
+            </button>
+              <button type="button" className="btn btn-primary" onClick={handleExportClick}>
+                Export All
+              </button>
+
+            </div>  
+    
+         </>
         ) : (
           <p>Loading users...</p>
         )}
